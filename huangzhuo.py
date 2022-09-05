@@ -71,9 +71,9 @@ def calculate_spped_factor(params):
         else:
             return max(min(1-params["speed"]/4, 1.0), 0.0)
 
-def rewreward_functionard(params):
+def reward_function(params):
     if params["all_wheels_on_track"] == False:
         return 1e-3
     return calculate_heading_factor(params) + calculate_spped_factor(params) +  calculate_spped_factor(params)
 
-print(calculate_spped_factor(mock_params.params))
+print(reward_function(mock_params.params))
