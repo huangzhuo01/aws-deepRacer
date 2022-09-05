@@ -1,3 +1,6 @@
+import math
+import mock_params
+
 def angle_of_vector(vector):
     """ Calculate the angle of the vector in degrees relative to
     a normal 2d coordinate system.  This is useful for finding the
@@ -44,29 +47,33 @@ def calculate_lane_factor(params):
 
 
 def calculate_spped_factor(params):
-    waypoints =  ['waypoints']
-    heading = params['heading'] + (params['steering_angle'] / 2)
+    closest_waypoints = params['closest_waypoints']
+    waypoints = params['waypoints']
     # Calculate the immediate track angle
     wp1 = waypoints[closest_waypoints[0]]
     wp2 = waypoints[closest_waypoints[1]]
     ta1 = angle_of_vector([wp1,wp2])
+    print("track angle 1: %i" % ta1)
     straight = True
     for i in range(3):
-        wp1 = waypoints[closest_waypoints[1]+i]
-        wp2 = waypoints[closest_waypoints[1]+i+1]
+        wp1 = waypoints[(closest_waypoints[1]+i)%len(waypoints)]
+        wp2 = waypoints[(closest_waypoints[1]+i+1)%len(waypoints)]
         ta_now = angle_of_vector([wp1, wp2])
         if ta_now != ta1:
             straight = False
             break
+        ta1 = ta_now
     if straight:
-        return max(min(params["speed"]/5, 1.0), 0.0) #速度越大越好
+        return max(min(params["speed"]/4, 1.0), 0.0)
     else:
-        if speed < 0.1:
+        if params["speed"] < 0.5:
             return 0
         else:
-            return max(min(1-params["speed"]/5, 1.0), 0.0) #速度越大越好
+            return max(min(1-params["speed"]/4, 1.0), 0.0)
 
 def rewreward_functionard(params):
     if params["all_wheels_on_track"] == False:
         return 1e-3
     return calculate_heading_factor(params) + calculate_spped_factor(params) +  calculate_spped_factor(params)
+
+print(calculate_spped_factor(mock_params.params))
