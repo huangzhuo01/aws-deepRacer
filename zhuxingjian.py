@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import math
-from functools import reduce
 
 LIMITS_SPEED = [0.1, 4]
 LIMITS_STEERING_ANGLE = [-30, 30]
@@ -12,9 +11,14 @@ def angle_of_vector(vector):
     return math.degrees(rad)
 
 def distance_of_vector(vector):
-    return ((vector[1][1] - vector[0][1]) ** 2 + vector[1][0] - vector[0][0] ** 2) ** 0.5
+    return ((vector[1][1] - vector[0][1]) ** 2 + (vector[1][0] - vector[0][0]) ** 2) ** 0.5
 
 def span_of_points(points):
+    def reduce(f, s):
+        r = 0
+        for i in s:
+            r += i
+        return r
     return reduce(lambda x, y: x + y, [distance_of_vector([points[i], points[i+1]]) for i in range(len(points)-1)])
 
 def reward_function(params):
@@ -44,9 +48,9 @@ def reward_function(params):
     elif not all_wheels_on_track:
         if s < f:
             A = 2.5 # or 3,4,5?
-            return A*sin(3.14/2*s*1/f)-(A-1)
+            return A*math.sin(math.pi/2*s*1/f)-(A-1)
         else:
-            return sin(3.14/2*x*1/f)
+            return math.sin(math.pi/2*s*1/f)
     else:
         w = (9 * (1-float(distance_from_center)/track_width/2) + 1) # 偏移中心轴因子 [1,10]
         s1 = 9 * s + 1 # 速度因子 [1,10]
