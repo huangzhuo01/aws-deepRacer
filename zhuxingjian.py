@@ -3,7 +3,7 @@
 
 import math
 
-LIMITS_SPEED = [0.1, 4]
+LIMITS_SPEED = [1, 4]
 LIMITS_STEERING_ANGLE = [-30, 30]
 
 def angle_of_vector(vector):
