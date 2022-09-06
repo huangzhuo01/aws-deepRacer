@@ -43,7 +43,8 @@ def reward_function(params):
         return -10
     elif not all_wheels_on_track:
         if s < f:
-            return 2.5*sin(3.14/2*s*1/f)-1.5
+            A = 2.5 # or 3,4,5?
+            return A*sin(3.14/2*s*1/f)-(A-1)
         else:
             return sin(3.14/2*x*1/f)
     else:
