@@ -52,7 +52,7 @@ def reward_function(params):
         else:
             return math.sin(math.pi/2*s*1/f)
     else:
-        w = (9 * (1-float(distance_from_center)/track_width/2) + 1) # 偏移中心轴因子 [1,10]
+        w = 9 * (1-float(distance_from_center)/track_width*2) + 1 # 偏移中心轴因子 [1,10]
         s1 = 9 * s + 1 # 速度因子 [1,10]
         t = 1.0
         if progress > 0:
