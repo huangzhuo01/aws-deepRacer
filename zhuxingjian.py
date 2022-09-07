@@ -60,8 +60,7 @@ def reward_function(params):
             lambda x, y: x + y,
             [forward_directions[0]-heading_direction]+
             [forward_directions[i+1]-forward_directions[i] for i in range(len(forward_directions)-1)]
-            )
-        ))
+        )))
         if a * steering_angle < 0:
             a1 = 2*math.sin(math.pi/2*abs(a - steering_angle)/LIMITS_STEERING_ANGLE[1]-LIMITS_STEERING_ANGLE[0])-1 # 转角因子,反向, [0,1]越小说明转角越大
             if a1 < 0:
