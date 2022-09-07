@@ -76,7 +76,9 @@ def reward_function(params):
             if hasattr(reward_function, 'steps'):
                 t = tpp / reward_function.steps # 完成度因子
             reward_function.steps = tpp
-        return a1 * s1 * w * t
+        rwd = a1 * s1 * w * t
+        print("R=%s (a1:%s, s1:%s, w:%s, t:%s) - is_offtrack:%s, speed:%s, progress:%s, all_wheels_on_track:%s, distance_from_center:%s, steps:%s, track_width:%s, heading_direction:%s, steering_angle:%s, forward_waypoints:%s, forward_directions:%s" % (rwd, a1, s1, w, t, is_offtrack,speed,progress,all_wheels_on_track,distance_from_center,steps,track_width,heading_direction,steering_angle,forward_waypoints,forward_directions))
+        return rwd
 
 if __name__ == "__main__":
     from mock_params import params
