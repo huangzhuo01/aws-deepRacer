@@ -71,7 +71,7 @@ def reward_function(params):
         w = B * (1.0-float(distance_from_center)/track_width*2) + 1 # 偏移中心轴因子 [1,B+1]
         s1 = B * s + 1 # 速度因子 [1,B+1]
         t = 1.0
-        if steps > 0:
+        if progress>0 and steps > 0:
             tpp = float(progress) / steps
             if hasattr(reward_function, 'steps'):
                 t = tpp / reward_function.steps # 完成度因子
