@@ -15,7 +15,7 @@ def reduce(f, s):
 def angle_of_vector(vector):
     rad = math.atan2(vector[1][1] - vector[0][1], vector[1][0] - vector[0][0])
     angle = math.degrees(rad)
-    return angle if (angle > 0) else 360.0 + angle
+    return angle if (angle >= 0) else 360.0 + angle
 
 def distance_of_vector(vector):
     return ((vector[1][1] - vector[0][1]) ** 2 + (vector[1][0] - vector[0][0]) ** 2) ** 0.5
