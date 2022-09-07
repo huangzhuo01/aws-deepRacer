@@ -27,7 +27,7 @@ def reward_function(params):
     pre         = params['closest_waypoints'][0]
     nxt         = params['closest_waypoints'][1]
 
-    is_crashed              = params["is_crashed"]
+    is_offtrack             = params["is_offtrack"]
     speed                   = params["speed"]
     progress                = params["progress"]
     all_wheels_on_track     = params["all_wheels_on_track"]
@@ -44,7 +44,7 @@ def reward_function(params):
 
     f = distance_of_vector([forward_waypoints[0], forward_waypoints[-1]]) / span_of_points(forward_waypoints)  # 前路弯曲因子 (0,1]越小说明越弯曲
     s = float(speed - LIMITS_SPEED[0]) / (LIMITS_SPEED[1] - LIMITS_SPEED[0]) # 速度因子 [0,1]
-    if is_crashed:
+    if is_offtrack:
         return -10
     elif not all_wheels_on_track:
         if s < f:
@@ -53,7 +53,7 @@ def reward_function(params):
         else:
             return math.sin(math.pi/2*s*1/f)
     else:
-        B = 2
+        B = 5
         a = max(LIMITS_STEERING_ANGLE[0],min(LIMITS_STEERING_ANGLE[1],reduce(
             lambda x, y: x + y,
             [forward_directions[0]-heading_direction]+
@@ -61,17 +61,17 @@ def reward_function(params):
             )
         ))
         if a * steering_angle < 0:
-            a1 = 2*math.sin(math.pi/2*abs(a - steering_angle)/60)-1 # 转角因子,反向, [0,1]越小说明转角越大
+            a1 = 2*math.sin(math.pi/2*abs(a - steering_angle)/LIMITS_STEERING_ANGLE[1]-LIMITS_STEERING_ANGLE[0])-1 # 转角因子,反向, [0,1]越小说明转角越大
             if a1 < 0:
                 return a1
             else:
                 a1 = B * a1 + 1
         else:
-            a1 = B * (1.0-math.tan(abs(a - steering_angle)/30 * math.pi / 4)) + 1 # 转角因子,同向 [1,B+1]越小说明转角越小
+            a1 = B * (1.0-math.tan(abs(a - steering_angle)/abs(LIMITS_STEERING_ANGLE[0] if (a < 0 or steering_angle < 0) else LIMITS_STEERING_ANGLE[1]) * math.pi / 4)) + 1 # 转角因子,同向 [1,B+1]越小说明转角越小
         w = B * (1.0-float(distance_from_center)/track_width*2) + 1 # 偏移中心轴因子 [1,B+1]
         s1 = B * s + 1 # 速度因子 [1,B+1]
         t = 1.0
-        if progress > 0:
+        if steps > 0:
             tpp = float(progress) / steps
             if hasattr(reward_function, 'steps'):
                 t = tpp / reward_function.steps # 完成度因子
