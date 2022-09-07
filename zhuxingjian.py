@@ -46,7 +46,7 @@ def reward_function(params):
     f = distance_of_vector([forward_waypoints[0], forward_waypoints[-1]]) / span_of_points(forward_waypoints)  # 前路弯曲因子 (0,1]越小说明越弯曲
     s = float(speed - LIMITS_SPEED[0]) / (LIMITS_SPEED[1] - LIMITS_SPEED[0]) # 速度因子 [0,1]
     if is_offtrack:
-        delattr(reward_function, 'steps')
+        reward_function.steps = None
         return -10.0
     elif not all_wheels_on_track:
         if s < f:
@@ -74,7 +74,7 @@ def reward_function(params):
         t = 1.0
         if progress>0 and steps > 0:
             tpp = float(progress) / steps
-            if hasattr(reward_function, 'steps'):
+            if hasattr(reward_function, 'steps') and reward_function.steps is not None:
                 t = tpp / reward_function.steps # 完成度因子
             reward_function.steps = tpp
         rwd = a1 * s1 * w * t
