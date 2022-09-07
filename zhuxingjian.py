@@ -14,7 +14,8 @@ def reduce(f, s):
 
 def angle_of_vector(vector):
     rad = math.atan2(vector[1][1] - vector[0][1], vector[1][0] - vector[0][0])
-    return math.degrees(rad)
+    angle = math.degrees(rad)
+    return angle if (angle > 0) else 360.0 + angle
 
 def distance_of_vector(vector):
     return ((vector[1][1] - vector[0][1]) ** 2 + (vector[1][0] - vector[0][0]) ** 2) ** 0.5
@@ -45,6 +46,7 @@ def reward_function(params):
     f = distance_of_vector([forward_waypoints[0], forward_waypoints[-1]]) / span_of_points(forward_waypoints)  # 前路弯曲因子 (0,1]越小说明越弯曲
     s = float(speed - LIMITS_SPEED[0]) / (LIMITS_SPEED[1] - LIMITS_SPEED[0]) # 速度因子 [0,1]
     if is_offtrack:
+        delattr(reward_function, 'steps')
         return -10.0
     elif not all_wheels_on_track:
         if s < f:
@@ -53,7 +55,7 @@ def reward_function(params):
         else:
             return math.sin(math.pi/2*s*1/f)
     else:
-        B = 5
+        B = 8.0
         a = max(LIMITS_STEERING_ANGLE[0],min(LIMITS_STEERING_ANGLE[1],reduce(
             lambda x, y: x + y,
             [forward_directions[0]-heading_direction]+
@@ -65,9 +67,9 @@ def reward_function(params):
             if a1 < 0:
                 return a1
             else:
-                a1 = B * a1 + 1
+                a1 = B/2 * a1 + 1
         else:
-            a1 = B * (1.0-math.tan(abs(a - steering_angle)/abs(LIMITS_STEERING_ANGLE[0] if (a < 0 or steering_angle < 0) else LIMITS_STEERING_ANGLE[1]) * math.pi / 4)) + 1 # 转角因子,同向 [1,B+1]越小说明转角越小
+            a1 = B/2 * (1.0-math.tan(abs(a - steering_angle)/abs(LIMITS_STEERING_ANGLE[0] if (a < 0 or steering_angle < 0) else LIMITS_STEERING_ANGLE[1]) * math.pi / 4)) + 1 # 转角因子,同向 [1,B+1]越小说明转角越小
         w = B * (1.0-float(distance_from_center)/track_width*2) + 1 # 偏移中心轴因子 [1,B+1]
         s1 = B * s + 1 # 速度因子 [1,B+1]
         t = 1.0
