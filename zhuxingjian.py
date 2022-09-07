@@ -15,13 +15,17 @@ def reduce(f, s):
 def angle_of_vector(vector):
     rad = math.atan2(vector[1][1] - vector[0][1], vector[1][0] - vector[0][0])
     angle = math.degrees(rad)
-    return angle if (angle >= 0) else 360.0 + angle
+    return angle if (angle >= 0) else (360.0 + angle)
 
 def distance_of_vector(vector):
     return ((vector[1][1] - vector[0][1]) ** 2 + (vector[1][0] - vector[0][0]) ** 2) ** 0.5
 
 def span_of_points(points):
     return reduce(lambda x, y: x + y, [distance_of_vector([points[i], points[i+1]]) for i in range(len(points)-1)])
+
+def diff_of_angle(angle1, angle2):
+    r = angle1 - angle2
+    return r if (r >= 0) else (360.0 + r)
 
 def reward_function(params):
     waypoints   = params["waypoints"]
@@ -39,7 +43,7 @@ def reward_function(params):
     heading_direction       = params["heading"] # 航行方向
     # track_direction         = angle_of_vector([waypoints[pre], waypoints[nxt]]) # 道路方向
     steering_angle          = params["steering_angle"]
-    # heading_angle           = abs(angle_of_vector([waypoints[pre], waypoints[nxt]])-params["heading"]) # 航向-道路夹角
+    # heading_angle           = abs(diff_of_angle(angle_of_vector([waypoints[pre], waypoints[nxt]]),params["heading"])) # 航向-道路夹角
     forward_waypoints       = [waypoints[(nxt+i)%len(waypoints)] for i in range(3)] # 前方航向关键点
     forward_directions      = [angle_of_vector([waypoints[(pre+i)%len(waypoints)], waypoints[(nxt+i)%len(waypoints)]]) for i in range(3)] # 前方航向弯度
 
@@ -58,8 +62,8 @@ def reward_function(params):
         B = 8.0
         a = max(LIMITS_STEERING_ANGLE[0],min(LIMITS_STEERING_ANGLE[1],reduce(
             lambda x, y: x + y,
-            [forward_directions[0]-heading_direction]+
-            [forward_directions[i+1]-forward_directions[i] for i in range(len(forward_directions)-1)]
+            [diff_of_angle(forward_directions[0],heading_direction)]+
+            [diff_of_angle(forward_directions[i+1],forward_directions[i]) for i in range(len(forward_directions)-1)]
         )))
         if a * steering_angle < 0:
             a1 = 2*math.sin(math.pi/2*abs(a - steering_angle)/LIMITS_STEERING_ANGLE[1]-LIMITS_STEERING_ANGLE[0])-1 # 转角因子,反向, [0,1]越小说明转角越大
